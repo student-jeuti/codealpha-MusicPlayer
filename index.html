@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Design</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/1361131483.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="music-player">
+        <nav>
+            <div class="circle" onclick="goBack()">
+                <i class="fa-solid fa-angle-left"></i>
+            </div>
+            <div class="circle" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </nav>
+        <div id="song-list" class="hidden">
+            <ul>
+                <li onclick="loadSong(0)">Song 1 - Artist 1</li>
+                <li onclick="loadSong(1)">Song 2 - Artist 2</li>
+                <li onclick="loadSong(2)">Song 3 - Artist 3</li>
+            </ul>
+        </div>
+        <img src="images/image8.jpg" class="song-img">
+        <h1>Song 1</h1>
+        <p>Artist 1</p>
+        <audio controls id="song">
+            <source src="music/song4.mp3">
+        </audio>
+        <input type="range" value="0" id="progress">
+        <div class="controls">
+            <div><i class="fa-solid fa-backward"></i></div> <!-- Backward Button -->
+            <div onclick="playPause()"><i class="fa-solid fa-play" id="ctrlIcon"></i></div> <!-- Play/Pause -->
+            <div><i class="fa-solid fa-forward"></i></div> <!-- Forward Button -->
+        </div>
+    </div>
+</div>
+
+<script>
+/* Playlist Array */
+let playlist = [
+    {
+        title: "Song 1",
+        artist: "Artist 1",
+        src: "music/song1.mp3",
+        thumbnail: "images/image8.jpg"
+    },
+    {
+        title: "Song 2",
+        artist: "Artist 2",
+        src: "music/song2.mp3",
+        thumbnail: "images/image2.jpg"
+    },
+    {
+        title: "Song 3",
+        artist: "Artist 3",
+        src: "music/song4.mp3",
+        thumbnail: "images/image3.jpg"
+    }
+];
+
+/* Track the Current Song */
+let currentSongIndex = 0;
+
+/* Function to Load a Song */
+function loadSong(index) {
+    let currentSong = playlist[index];
+    song.src = currentSong.src;
+    document.querySelector(".song-img").src = currentSong.thumbnail;
+    document.querySelector("h1").innerText = currentSong.title;
+    document.querySelector("p").innerText = currentSong.artist;
+    song.load(); // Reload the audio
+    playPause(); // Play the new song
+}
+
+let progress = document.getElementById("progress");
+let song = document.getElementById("song");
+let ctrlIcon = document.getElementById("ctrlIcon");
+let currentTimeElem = document.getElementById("current-time");
+let durationElem = document.getElementById("duration");
+
+song.onloadedmetadata = function() {
+    progress.max = song.duration;
+    progress.value = song.currentTime;
+    durationElem.innerText = formatTime(song.duration);
+};
+
+song.ontimeupdate = function() {
+    progress.value = song.currentTime;
+    currentTimeElem.innerText = formatTime(song.currentTime);
+};
+
+/* Play/Pause Functionality */
+function playPause() {
+    if (ctrlIcon.classList.contains("fa-pause")) {
+        song.pause();
+        ctrlIcon.classList.remove("fa-pause");
+        ctrlIcon.classList.add("fa-play");
+    } else {
+        song.play();
+        ctrlIcon.classList.add("fa-pause");
+        ctrlIcon.classList.remove("fa-play");
+    }
+}
+
+if (song.play()) {
+    setInterval(() => {
+        progress.value = song.currentTime;
+        currentTimeElem.innerText = formatTime(song.currentTime);
+    }, 500);
+}
+
+progress.onchange = function() {
+    song.play();
+    song.currentTime = progress.value;
+    ctrlIcon.classList.add("fa-pause");
+    ctrlIcon.classList.remove("fa-play");
+};
+
+/* Event Listener for Forward Button */
+document.querySelector(".fa-forward").addEventListener("click", () => {
+    currentSongIndex = (currentSongIndex + 1) % playlist.length; // Move to the next song
+    loadSong(currentSongIndex);
+});
+
+/* Event Listener for Backward Button */
+document.querySelector(".fa-backward").addEventListener("click", () => {
+    currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; // Move to the previous song
+    loadSong(currentSongIndex);
+});
+
+/* Initialize the First Song */
+loadSong(currentSongIndex);
+
+/* Function to Go Back */
+function goBack() {
+    alert("Go back button clicked!");
+    // Add your functionality here
+}
+
+/* Function to Toggle Menu */
+function toggleMenu() {
+    console.log("Menu button clicked");
+    const songList = document.getElementById("song-list");
+    songList.classList.toggle("hidden");
+}
+
+</script>
+</body>
+</html>
